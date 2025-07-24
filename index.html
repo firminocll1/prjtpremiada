@@ -1,0 +1,764 @@
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatório de Pules Premiadas</title>
+  <style>
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    background: #f6f8fa;
+    color: #222;
+  }
+  h1 {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 2.2rem;
+    letter-spacing: 1px;
+    color: #1a237e;
+    text-shadow: 0 2px 8px #e3e7fa;
+  }
+  .filtros {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 24px #0001;
+    padding: 32px 24px 18px 24px;
+    max-width: 1200px;
+    margin: 32px auto 0 auto;
+    position: relative;
+    z-index: 10;
+  }
+  .filtros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px 36px; 
+  }
+  .filtros label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #1a237e;
+    letter-spacing: 0.5px;
+  }
+  .filtros input, .filtros select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #bfc7d1;
+    border-radius: 6px;
+    background: #f7faff;
+    font-size: 1rem;
+    margin-bottom: 0;
+    transition: border 0.2s;
+    box-sizing: border-box;
+  }
+  .filtros select {
+    position: relative;
+    z-index: 2;
+  }
+  .filtros input:focus, .filtros select:focus {
+    border-color: #1976d2;
+    outline: none;
+    background: #e3f0ff;
+  }
+  #horarios-checkboxes label {
+    font-weight: 500;
+    color: #222;
+    background: #f3f6fa;
+    border-radius: 5px;
+    padding: 4px 8px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  #horarios-checkboxes label:hover {
+    background: #e3e7fa;
+  }
+  #horarios-checkboxes input[type="checkbox"] {
+    accent-color: #1976d2;
+    margin-right: 6px;
+    transform: scale(1.15);
+  }
+  .btns {
+    margin-top: 22px;
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+    z-index: 1;
+    position: relative;
+  }
+  button {
+    padding: 10px 22px;
+    background: linear-gradient(90deg, #1976d2 60%, #1565c0 100%);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    font-size: 1.08rem;
+    font-weight: 600;
+    box-shadow: 0 2px 10px #1976d23a;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    letter-spacing: 0.5px;
+  }
+  button:hover, button:focus {
+    background: linear-gradient(90deg, #1565c0 60%, #1976d2 100%);
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 6px 18px #1976d255;
+  }
+  .resumo-filtros {
+    text-align: center;
+    margin: 24px 0 12px 0;
+    font-weight: 600;
+    color: #1976d2;
+    background: #e3e7fa;
+    border-radius: 7px;
+    padding: 10px 0;
+    font-size: 1.08rem;
+    box-shadow: 0 2px 8px #1976d21a;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px #0001;
+    margin-top: 18px;
+    overflow: hidden;
+  }
+  th, td {
+    border: 1px solid #e3e7fa;
+    padding: 10px 8px;
+    text-align: left;
+    font-size: 1.01rem;
+  }
+  th {
+    background: linear-gradient(90deg, #e3e7fa 60%, #f7faff 100%);
+    color: #1a237e;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #bfc7d1;
+  }
+  tr:nth-child(even) td {
+    background: #f7faff;
+  }
+  .hidden { display: none; }
+  .hidden-table, .hidden-table thead { display: none; }
+  #msg-sem-dados {
+    display: none;
+    text-align: center;
+    color: #b00;
+    font-weight: bold;
+    margin: 30px 0 10px 0;
+    background: #fff3f3;
+    border: 1px solid #ffbcbc;
+    border-radius: 7px;
+    padding: 14px 0;
+    box-shadow: 0 2px 8px #ffbcbc33;
+    font-size: 1.08rem;
+  }
+  #erro-terminal {
+    color: #b00;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    display: none;
+    background: #fff3f3;
+    border: 1px solid #ffbcbc;
+    border-radius: 7px;
+    padding: 8px 0;
+    box-shadow: 0 2px 8px #ffbcbc33;
+    text-align: center;
+  }
+  #paginacao {
+    text-align: center;
+    margin: 24px 0 0 0;
+  }
+  #paginacao button {
+    background: #e3e7fa;
+    color: #1976d2;
+    border: 1px solid #bfc7d1;
+    border-radius: 5px;
+    margin: 0 2px;
+    padding: 6px 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 1px 4px #1976d21a;
+    transition: background 0.2s, color 0.2s;
+  }
+  #paginacao button:disabled {
+    background: #1976d2;
+    color: #fff;
+    cursor: default;
+    box-shadow: none;
+  }
+  @media (max-width: 900px) {
+    .filtros-grid { grid-template-columns: 1fr 1fr; }
+    table, th, td { font-size: 0.97rem; }
+  }
+  @media (max-width: 600px) {
+    .filtros, .filtros-grid { padding: 10px; }
+    .filtros-grid { grid-template-columns: 1fr; }
+    .btns { flex-direction: column; gap: 8px; }
+    table, th, td { font-size: 0.93rem; }
+  }
+  #terminal {
+    margin-right: 8px;
+  }
+  .filtros > div[style*="grid-column"] {
+  grid-column: 1 / -1;
+}
+  </style>
+</head>
+<body>
+
+  <h1>Relatório de Pules Premiadas</h1>
+
+  <div class="filtros">
+    <div class="filtros-grid">
+      <div>
+        <label for="secao">Seção</label>
+        <select id="secao">
+          <option value="" selected>---Selecione---</option>
+          <option value="Todos">Todos</option>
+          <option value="Seção A">Seção A</option>
+          <option value="Seção B">Seção B</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="ponto">Ponto</label>
+        <select id="ponto">
+          <option value="" selected>---Selecione---</option>
+          <option value="Todos">Todos</option>
+          <option value="Ponto 1">Ponto 1</option>
+          <option value="Ponto 2">Ponto 2</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="tipo-jogo">Tipo de Jogo</label>
+        <select id="tipo-jogo">
+          <option value="" selected>---Selecione---</option>
+          <option value="Todos">Todos</option>
+          <option value="Milhar">Milhar</option>
+          <option value="Centena">Centena</option>
+          <option value="MilharCentena">MilharCentena</option>
+          <option value="Milhar Invertida">Milhar Invertida</option>
+          <option value="Super 5">Super 5</option>
+          <option value="Quininha">Quininha</option>
+          <option value="Terno de Grupo">Terno de Grupo</option>
+          <option value="Grupo Combinado">Grupo Combinado</option>
+          <option value="MilharCentenaDezena">MilharCentenaDezena</option>
+          <option value="Quina de Grupo">Quina de Grupo</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="terminal">Terminal</label>
+        <input type="text" id="terminal" placeholder="Ex: 861741040000000" maxlength="15" minlength="15" pattern="\d*">
+      </div>
+      <div>
+        <label for="data-inicial">Data Inicial</label>
+        <input type="date" id="data-inicial">
+      </div>
+      <div>
+        <label for="data-final">Data Final</label>
+        <input type="date" id="data-final">
+      </div>
+      <div>
+        <label for="numero-pule">Número da Pule</label>
+        <input type="text" id="numero-pule" placeholder="Ex: 00012345">
+      </div>
+      <div>
+        <label for="tipo-data">Tipo de Data</label>
+        <select id="tipo-data">
+          <option value="" selected>---Selecione---</option>
+          <option value="Data do Jogo">Data do Jogo</option>
+          <option value="Data de Realização">Data de Realização</option>
+        </select>
+      </div>
+      <div>
+        <label for="busca-numeros">Buscar Pule / Números</label>
+        <input type="text" id="busca-numeros" placeholder="Digite o número ou parte dele">
+      </div>
+      <div>
+        <label for="filtro-super5-acertos">Qtd. Acertos (Super 5)</label>
+        <select id="filtro-super5-acertos">
+          <option value="">---Todos---</option>
+          <option value="5">5 acertos</option>
+          <option value="4">4 acertos</option>
+          <option value="3">3 acertos</option>
+        </select>
+      </div>
+      <div>
+        <label for="filtro-situacao">Situação</label>
+        <select id="filtro-situacao">
+          <option value="">---Todas---</option>
+          <option value="Confirmado">Confirmado</option>
+          <option value="Não Confirmado">Não Confirmado</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Horário (Extrações) ocupa a linha toda, logo acima dos botões -->
+    <div style="margin: 0 0 10px 0; grid-column: 1 / -1;">
+      <label style="font-weight:600; color:#1a237e;">Horário (Extrações)</label>
+      <div id="horarios-checkboxes" style="display: flex; flex-wrap: wrap; gap: 12px; margin-top:6px;">
+        <label><input type="checkbox" class="horario-checkbox" value="09h RIO" checked> 09h RIO</label>
+        <label><input type="checkbox" class="horario-checkbox" value="11h RIO" checked> 11h RIO</label>
+        <label><input type="checkbox" class="horario-checkbox" value="14h RIO" checked> 14h RIO</label>
+        <label><input type="checkbox" class="horario-checkbox" value="16h RIO" checked> 16h RIO</label>
+        <label><input type="checkbox" class="horario-checkbox" value="18h RIO" checked> 18h RIO</label>
+        <label><input type="checkbox" class="horario-checkbox" value="21h RIO" checked> 21h RIO</label>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button onclick="filtrarTabela()">Buscar</button>
+      <button onclick="limparFiltros()">Limpar Filtros</button>
+      <button onclick="exportarExcel()">Exportar Excel</button>
+      <button onclick="window.print()">Imprimir / PDF</button>
+    </div>
+    <div id="erro-terminal" style="color: red; font-weight: bold; margin-top: 20px; margin-bottom: 10px; display: none;">
+      * Terminal com o dígito incorreto
+    </div>
+  </div>
+
+  <div class="resumo-filtros" id="resumo-filtros"></div>
+  <div id="msg-sem-dados" style="display:none; text-align:center; color:#b00; font-weight:bold; margin: 30px 0 10px 0;">
+    Não existe pules premiadas
+  </div>
+
+  <table id="tabela-resultados" class="hidden-table">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Ponto</th>
+        <th>Terminal</th>
+        <th>Pule</th> 
+        <th>Modalidade</th>
+        <th>Faixa</th>
+        <th id="th-numeros" style="cursor:pointer;">
+  Números
+  <span id="seta-numeros">&#8597;</span>
+</th>
+        <th class="col-acerto">Acerto</th>
+        <th class="col-qtd">Qtd. Acertos</th>
+        <th>Números Acertados</th>
+        <th>Situação</th>
+        <th id="th-valor-aposta" style="cursor:pointer;">
+  Valor Aposta
+  <span id="seta-valor-aposta">&#8597;</span>
+</th>
+        <th>Valor Prêmio</th>
+      </tr>
+    </thead>
+    <tbody id="corpo-tabela"></tbody>
+  </table>
+  <div id="msg-sem-dados" style="display:none; text-align:center; margin-top:20px;">
+    Nenhum dado encontrado para os filtros aplicados.
+  </div>
+  
+  <div id="totalizador" style="display:none; text-align:right; font-weight:bold; margin: 18px 0 0 0; font-size:1.08rem; background:#e3e7fa; border-radius:7px; padding:10px 18px; box-shadow:0 2px 8px #1976d21a;"></div>
+
+  <script>
+    let dadosJson = [];
+    let paginaAtual = 1;
+    const itensPorPagina = 10;
+    let ordenacaoColuna = null;
+let ordenacaoAsc = true;
+
+    async function carregarDados() {
+      try {
+        const resp = await fetch('dados.json');
+        dadosJson = await resp.json();
+        
+        // filtrarTabela();
+      } catch (e) {
+        alert('Erro ao carregar dados.json');
+      }
+    }
+    window.onload = function() {
+  carregarDados();
+  document.getElementById('tabela-resultados').classList.add('hidden-table');
+  atualizarColunasVisiveis('Todos');
+};
+
+    function gerarTabela(dados, dadosFiltrados) {
+      const corpo = document.getElementById("corpo-tabela");
+      const tabela = document.getElementById("tabela-resultados");
+      const msgSemDados = document.getElementById("msg-sem-dados");
+      const totalizador = document.getElementById("totalizador");
+      corpo.innerHTML = "";
+
+      // Verifica se os filtros de data estão preenchidos
+      const dataInicial = document.getElementById('data-inicial').value;
+      const dataFinal = document.getElementById('data-final').value;
+
+      if (dados.length === 0) {
+        tabela.classList.add('hidden-table');
+        if (totalizador) totalizador.style.display = "none";
+        if (msgSemDados) {
+          // Mostra mensagem especial se filtro de data foi usado
+          if (dataInicial && dataFinal) {
+            msgSemDados.textContent = "Não há pules premiadas no período selecionado";
+          } else {
+            msgSemDados.textContent = "Não existe pules premiadas";
+          }
+          msgSemDados.style.display = "block";
+        }
+        return;
+      }
+      if (msgSemDados) {
+        msgSemDados.style.display = "none";
+      }
+      tabela.classList.remove('hidden-table');
+      dados.forEach(dado => {
+        // Conversão da data para DD/MM/AAAA
+        let dataFormatada = dado.data;
+        if (dataFormatada && /^\d{4}-\d{2}-\d{2}$/.test(dataFormatada)) {
+          const [ano, mes, dia] = dataFormatada.split("-");
+          dataFormatada = `${dia}/${mes}/${ano}`;
+        }
+        const row = `<tr>
+          <td>${dataFormatada}</td>
+          <td>${dado.ponto}</td>
+          <td>${dado.terminal}</td>
+          <td>${dado.pule || ''}</td>
+          <td>${dado.modalidade}</td>
+          <td>${dado.faixa}</td>
+          <td>${
+    (dado.modalidade && dado.modalidade.toLowerCase() === "super 5" && dado.numeros)
+      ? (() => {
+          const dezenas = dado.numeros.split(/[,; ]+/).filter(n => n.trim() !== "");
+          return `${dado.numeros} <span style="color:#1565c0;font-weight:bold;">(${dezenas.length.toString().padStart(2, '0')})</span>`;
+        })()
+      : dado.numeros || ""
+  }</td>
+  <td class="col-acerto">${dado.acerto}</td>
+  <td class="col-qtd">${dado.qtd}</td>
+  <td>${dado.acertados}</td>
+  <td>${dado.situacao || ''}</td>
+  <td>${dado.aposta}</td>
+  <td>${dado.premio}</td>
+</tr>`;
+        corpo.innerHTML += row;
+      });
+
+      // Totalizador
+      if (totalizador && dadosFiltrados) {
+        let totalAposta = 0, totalPremio = 0;
+        let totalApostaMilhar = 0, totalPremioMilhar = 0;
+        let totalApostaCentena = 0, totalPremioCentena = 0;
+        const tipoJogoSelecionado = document.getElementById('tipo-jogo').value;
+
+        dadosFiltrados.forEach(dado => {
+          let valorAposta = dado.aposta ?? dado['valorAposta'] ?? dado['valor_aposta'] ?? "0";
+          valorAposta = valorAposta.toString().replace(/[^0-9,.-]/g, '').replace(/\./g, '').replace(',', '.');
+          let aposta = parseFloat(valorAposta) || 0;
+
+          let valorPremio = dado.premio ?? dado['valorPremio'] ?? dado['valor_premio'] ?? dado['premio_total'] ?? "0";
+          valorPremio = valorPremio.toString().replace(/[^0-9,.-]/g, '').replace(/\./g, '').replace(',', '.');
+          let premio = parseFloat(valorPremio) || 0;
+
+          totalAposta += aposta;
+          totalPremio += premio;
+
+          // Se for MilharCentena, soma separado por faixa
+          if (tipoJogoSelecionado === "MilharCentena" && dado.acerto) {
+            const acerto = dado.acerto.toString().toLowerCase();
+            if (acerto.includes("milhar")) {
+              totalApostaMilhar += aposta;
+              totalPremioMilhar += premio;
+            } else if (acerto.includes("centena")) {
+              totalApostaCentena += aposta;
+              totalPremioCentena += premio;
+            }
+          }
+        });
+
+        // Monta o HTML do totalizador
+        let html = `
+          Total Valor de Apostas: <span style="color:#1565c0;">R$ ${totalAposta.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
+          &nbsp;|&nbsp;
+          Total Valor de Prêmio: <span style="color:#388e3c;">R$ ${totalPremio.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
+        `;
+
+        // Se for MilharCentena, mostra detalhado
+        if (tipoJogoSelecionado === "MilharCentena") {
+          html += `<br>
+            <span style="color:#1565c0;">Milhar</span> - Valor Apostado: <b>R$ ${totalApostaMilhar.toLocaleString('pt-BR', {minimumFractionDigits:2})}</b>
+            &nbsp;|&nbsp;
+            Valor Prêmio: <b>R$ ${totalPremioMilhar.toLocaleString('pt-BR', {minimumFractionDigits:2})}</b>
+            <br>
+            <span style="color:#1565c0;">Centena</span> - Valor Apostado: <b>R$ ${totalApostaCentena.toLocaleString('pt-BR', {minimumFractionDigits:2})}</b>
+            &nbsp;|&nbsp;
+            Valor Prêmio: <b>R$ ${totalPremioCentena.toLocaleString('pt-BR', {minimumFractionDigits:2})}</b>
+          `;
+        }
+
+        totalizador.innerHTML = html;
+        totalizador.style.display = "block";
+      }
+
+      // Totalizador específico para Super 5
+      if (dadosFiltrados && document.getElementById('tipo-jogo').value.trim().toLowerCase() === "super 5") {
+        let total5 = 0, premio5 = 0;
+        let total4 = 0, premio4 = 0;
+        let total3 = 0, premio3 = 0;
+
+        dadosFiltrados.forEach(dado => {
+          const qtd = parseInt(dado.qtd, 10);
+          let valorPremio = dado.premio ?? dado['valorPremio'] ?? dado['valor_premio'] ?? "0";
+          valorPremio = valorPremio.toString().replace(/[^0-9,.-]/g, '').replace(/\./g, '').replace(',', '.');
+          const premio = parseFloat(valorPremio) || 0;
+          if (qtd === 5) {
+            total5++;
+            premio5 += premio;
+          } else if (qtd === 4) {
+            total4++;
+            premio4 += premio;
+          } else if (qtd === 3) {
+            total3++;
+            premio3 += premio;
+          }
+        });
+
+        let htmlSuper5 = `
+          <br>
+          <span style="color:#1565c0;">Super 5 - Totalizadores:</span><br>
+          <b>5 acertos:</b> ${total5} apostas | Prêmio total: <span style="color:#388e3c;">R$ ${premio5.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span><br>
+          <b>4 acertos:</b> ${total4} apostas | Prêmio total: <span style="color:#388e3c;">R$ ${premio4.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span><br>
+          <b>3 acertos:</b> ${total3} apostas | Prêmio total: <span style="color:#388e3c;">R$ ${premio3.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span>
+        `;
+        totalizador.innerHTML += htmlSuper5;
+      }
+
+      // Totalizador específico para Quina de Grupo
+      if (dadosFiltrados && document.getElementById('tipo-jogo').value.trim().toLowerCase() === "quina de grupo") {
+        // Exibir algum totalizador ou destaque especial
+      }
+    }
+
+    function filtrarTabela(pagina = 1) {
+      paginaAtual = pagina;
+      const terminal = document.getElementById('terminal').value.trim();
+      const erroTerminal = document.getElementById('erro-terminal');
+      erroTerminal.style.display = 'none';
+
+      if (terminal && (!/^\d{15}$/.test(terminal))) {
+        erroTerminal.style.display = 'block';
+        return;
+      }
+
+      const tipoJogo = document.getElementById('tipo-jogo').value.trim().toLowerCase();
+      const ponto = document.getElementById('ponto').value.trim().toLowerCase();
+      const buscaNumeros = document.getElementById('busca-numeros').value.trim().toLowerCase();
+      const numeroPule = document.getElementById('numero-pule').value.trim().toLowerCase(); // <-- ADICIONE ESTA LINHA
+      const situacaoFiltro = document.getElementById('filtro-situacao').value.trim().toLowerCase();
+      const filtroSuper5Acertos = document.getElementById('filtro-super5-acertos').value;
+
+      // Coleta os horários selecionados
+      const horariosSelecionados = Array.from(document.querySelectorAll('.horario-checkbox:checked')).map(cb => cb.value);
+
+      const filtrados = dadosJson.filter(d =>
+        (tipoJogo === "todos" || (d.modalidade && d.modalidade.trim().toLowerCase() === tipoJogo)) &&
+        (ponto === "todos" || (d.ponto && d.ponto.trim().toLowerCase() === ponto)) &&
+        (!terminal || d.terminal === terminal) &&
+        (horariosSelecionados.length === 0 || (d.horario && horariosSelecionados.includes(d.horario))) &&
+        (!buscaNumeros || (d.numeros && d.numeros.toString().toLowerCase().includes(buscaNumeros))) &&
+        (!numeroPule || (d.numeroPule && d.numeroPule.toString().toLowerCase().includes(numeroPule))) &&
+        (!situacaoFiltro ||
+          (d.situacao &&
+            d.situacao.trim().toLowerCase() === situacaoFiltro)) &&
+        (
+          tipoJogo !== "super 5" ||
+          !filtroSuper5Acertos ||
+          (d.qtd && d.qtd.toString() === filtroSuper5Acertos)
+        )
+      );
+
+      
+      if (ordenacaoColuna) {
+        filtrados.sort((a, b) => {
+          let va = a[ordenacaoColuna];
+          let vb = b[ordenacaoColuna];
+          if (ordenacaoColuna === 'aposta' || ordenacaoColuna === 'premio') {
+            va = parseFloat(va.toString().replace(/[^0-9,.-]/g, '').replace(/\./g, '').replace(',', '.')) || 0;
+            vb = parseFloat(vb.toString().replace(/[^0-9,.-]/g, '').replace(/\./g, '').replace(',', '.')) || 0;
+          }
+          if (ordenacaoColuna === 'numeros') {
+            va = parseInt(va) || 0;
+            vb = parseInt(vb) || 0;
+          }
+          if (va < vb) return ordenacaoAsc ? -1 : 1;
+          if (va > vb) return ordenacaoAsc ? 1 : -1;
+          return 0;
+        });
+      }
+
+      const paginaDados = filtrados;
+
+      atualizarResumoFiltros();
+      gerarTabela(paginaDados, filtrados);
+      atualizarColunasVisiveis(document.getElementById('tipo-jogo').value);
+      // criarPaginacao(filtrados.length);
+      atualizarSetasOrdenacao(); // Atualiza as setas após ordenar
+    }
+
+    function ordenarPor(coluna) {
+  if (ordenacaoColuna === coluna) {
+    ordenacaoAsc = !ordenacaoAsc;
+  } else {
+    ordenacaoColuna = coluna;
+    ordenacaoAsc = true;
+  }
+  filtrarTabela();
+}
+
+    function atualizarColunasVisiveis(tipoJogo) {
+      const colAcerto = document.querySelectorAll('.col-acerto');
+      const colQtd = document.querySelectorAll('.col-qtd');
+      const colInvertida = document.querySelectorAll('.col-invertida');
+      const colGrupo = document.querySelectorAll('.col-grupo');
+      const corpo = document.getElementById('corpo-tabela');
+      if (!corpo || corpo.innerHTML.trim() === '') {
+        colInvertida.forEach(col => col.classList.add('hidden'));
+        colGrupo.forEach(col => col.classList.add('hidden'));
+        return;
+      }
+      colInvertida.forEach(col => col.classList.remove('hidden'));
+      colGrupo.forEach(col => col.classList.remove('hidden'));
+      // Esconde "Combinou?" só para Grupo Combinado
+      if (tipoJogo === 'Grupo Combinado') {
+        // Esconde apenas a coluna "Combinou?"
+        document.querySelectorAll('th.col-grupo:nth-child(14), td.col-grupo:nth-child(14)').forEach(col => col.classList.add('hidden'));
+      }
+      if (tipoJogo === 'MilharCentena') {
+        colInvertida.forEach(col => col.classList.add('hidden'));
+        colGrupo.forEach(col => col.classList.add('hidden'));
+      } else if (tipoJogo === 'Milhar Invertida') {
+        colInvertida.forEach(col => col.classList.remove('hidden'));
+        colGrupo.forEach(col => col.classList.add('hidden'));
+      } else if (tipoJogo === 'Grupo Combinado') {
+        colInvertida.forEach(col => col.classList.add('hidden'));
+        colGrupo.forEach(col => col.classList.remove('hidden'));
+        // Esconde "Combinou?" já feito acima
+      } else if (tipoJogo === 'Super 5') {
+        colInvertida.forEach(col => col.classList.add('hidden'));
+        colGrupo.forEach(col => col.classList.add('hidden'));
+      } else if (tipoJogo === 'Todos') {
+        colInvertida.forEach(col => col.classList.remove('hidden'));
+        colGrupo.forEach(col => col.classList.remove('hidden'));
+      }
+
+      // Mostra "Acerto" só para Super 5 e MilharCentena
+      if (
+        tipoJogo === 'Super 5' ||
+        tipoJogo === 'MilharCentena' ||
+        tipoJogo === 'MilharCentenaDezena' 
+      ) {
+        colAcerto.forEach(col => col.classList.remove('hidden'));
+      } else {
+        colAcerto.forEach(col => col.classList.add('hidden'));
+      }
+
+      // Mostra "Qtd. Acertos" só para Super 5
+      if (tipoJogo === 'Super 5') {
+        colQtd.forEach(col => col.classList.remove('hidden'));
+      } else {
+        colQtd.forEach(col => col.classList.add('hidden'));
+      }
+    }
+
+    function limparFiltros() {
+      document.querySelectorAll('.filtros input, .filtros select').forEach(e => e.value = '');
+      document.getElementById('resumo-filtros').innerHTML = '';
+      document.getElementById('corpo-tabela').innerHTML = '';
+      document.getElementById('tabela-resultados').classList.add('hidden-table');
+      atualizarColunasVisiveis('Todos');
+      const msgSemDados = document.getElementById("msg-sem-dados");
+      if (msgSemDados) msgSemDados.style.display = "none";
+    }
+
+    function atualizarResumoFiltros() {
+      const dataInicial = document.getElementById('data-inicial').value;
+      const dataFinal = document.getElementById('data-final').value;
+      const secao = document.getElementById('secao').value;
+      const tipoJogo = document.getElementById('tipo-jogo').value;
+      const ponto = document.getElementById('ponto').value;
+      const tipoData = document.getElementById('tipo-data').value;
+      const horariosMarcados = Array.from(document.querySelectorAll('.horario-checkbox:checked')).map(cb => cb.value);
+      const horario = horariosMarcados.length ? horariosMarcados.join(', ') : '---';
+
+      const resumo = `
+        Data Inicial: ${dataInicial || '---'} - Data Final: ${dataFinal || '---'}<br>
+        Seção: ${secao} | Tipo de Jogo: ${tipoJogo}<br>
+        Ponto: ${ponto} | Tipo de Data: ${tipoData}<br>
+        Extração: ${horario}
+      `;
+
+      document.getElementById('resumo-filtros').innerHTML = resumo;
+    }
+
+    function exportarExcel() {
+      const tabela = document.getElementById("tabela-resultados");
+      const html = tabela.outerHTML.replace(/ /g, '%20');
+      const a = document.createElement('a');
+      a.href = 'data:application/vnd.ms-excel,' + html;
+      a.download = 'relatorio-pules.xls';
+      a.click();
+    }
+
+    function criarPaginacao(total) {
+      const pagDiv = document.getElementById('paginacao');
+      pagDiv.innerHTML = '';
+      const totalPaginas = Math.ceil(total / itensPorPagina);
+      if (totalPaginas <= 1) return;
+
+      for (let i = 1; i <= totalPaginas; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.style.margin = '0 3px';
+        if (i === paginaAtual) btn.disabled = true;
+        btn.onclick = () => filtrarTabela(i);
+        pagDiv.appendChild(btn);
+      }
+    }
+
+   
+    // gerarTabela(dadosExemplo);
+
+    
+    atualizarColunasVisiveis('Todos');
+
+    document.getElementById('tipo-jogo').addEventListener('change', function() {
+      atualizarColunasVisiveis(this.value);
+    });
+    document.getElementById('filtro-situacao').addEventListener('change', function() {
+  filtrarTabela(1);
+});
+    document.getElementById('filtro-super5-acertos').addEventListener('change', function() {
+  filtrarTabela(1);
+});
+document.getElementById('th-numeros').onclick = function() {
+  ordenarPor('numeros');
+};
+document.getElementById('th-valor-aposta').onclick = function() {
+  ordenarPor('aposta');
+};
+
+function atualizarSetasOrdenacao() {
+  document.getElementById('seta-numeros').textContent = ordenacaoColuna === 'numeros'
+    ? (ordenacaoAsc ? '▲' : '▼')
+    : '↕';
+  document.getElementById('seta-valor-aposta').textContent = ordenacaoColuna === 'aposta'
+    ? (ordenacaoAsc ? '▲' : '▼')
+    : '↕';
+}
+
+atualizarSetasOrdenacao();
+  </script>
+</body>
+</html>
