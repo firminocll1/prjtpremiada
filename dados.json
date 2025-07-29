@@ -182,6 +182,20 @@
     "situacao": "Confirmado"
   },
   {
+    "pule": "604861",
+    "data": "2025-06-11",
+    "ponto": "Ponto 1",
+    "modalidade": "MilharCentena",
+    "faixa": "1º",
+    "numeros": "5719",
+    "acerto": "Centena",
+    "qtd": 1,
+    "acertados": "719",
+    "aposta": "R$9,00",
+    "premio": "R$300,00",
+    "situacao": "Confirmado"
+  },
+  {
     "pule": "184524",
     "data": "2025-06-13",
     "ponto": "Ponto 2",
